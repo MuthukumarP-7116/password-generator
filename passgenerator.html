@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Generator</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 400px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .password-box {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        #password {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px 0 0 8px;
+            font-size: 16px;
+        }
+
+        #copyBtn {
+            padding: 12px;
+            border: none;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .length {
+            margin-bottom: 20px;
+        }
+
+        .length input {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .options {
+            margin-bottom: 20px;
+        }
+
+        .options label {
+            display: block;
+            margin: 12px 0;
+            color: #444;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #5568d9;
+        }
+
+        .strength {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #strengthText {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>🔐 Password Generator</h1>
+
+    <div class="password-box">
+        <input type="text" id="password" placeholder="Your password" readonly>
+        <button id="copyBtn">Copy</button>
+    </div>
+
+    <div class="length">
+        <label>
+            Password Length:
+            <span id="lengthValue">12</span>
+        </label>
+
+        <input type="range" id="length" min="4" max="30" value="12">
+    </div>
+
+    <div class="options">
+
+        <label>
+            <input type="checkbox" id="uppercase" checked>
+            Include Uppercase (A-Z)
+        </label>
+
+        <label>
+            <input type="checkbox" id="lowercase" checked>
+            Include Lowercase (a-z)
+        </label>
+
+        <label>
+            <input type="checkbox" id="numbers" checked>
+            Include Numbers (0-9)
+        </label>
+
+        <label>
+            <input type="checkbox" id="symbols" checked>
+            Include Symbols (!@#$%)
+        </label>
+
+    </div>
+
+    <button onclick="generatePassword()">
+        Generate Password
+    </button>
+
+    <div class="strength">
+        Password Strength:
+        <div id="strengthText">---</div>
+    </div>
+
+</div>
+
+
+<script>
+
+    const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const lowercase = "abcdefghijklmnopqrstuvwxyz";
+    const numbers = "0123456789";
+    const symbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+    const lengthSlider = document.getElementById("length");
+    const lengthValue = document.getElementById("lengthValue");
+
+    lengthSlider.addEventListener("input", function() {
+        lengthValue.textContent = this.value;
+    });
+
+
+    function generatePassword() {
+
+        let characters = "";
+
+        const useUppercase =
+            document.getElementById("uppercase").checked;
+
+        const useLowercase =
+            document.getElementById("lowercase").checked;
+
+        const useNumbers =
+            document.getElementById("numbers").checked;
+
+        const useSymbols =
+            document.getElementById("symbols").checked;
+
+
+        if (useUppercase) {
+            characters += uppercase;
+        }
+
+        if (useLowercase) {
+            characters += lowercase;
+        }
+
+        if (useNumbers) {
+            characters += numbers;
+        }
+
+        if (useSymbols) {
+            characters += symbols;
+        }
+
+
+        if (characters.length === 0) {
+            alert("Please select at least one character type!");
+            return;
+        }
+
+
+        const length = parseInt(lengthSlider.value);
+
+        let password = "";
+
+
+        for (let i = 0; i < length; i++) {
+
+            const randomIndex =
+                Math.floor(Math.random() * characters.length);
+
+            password += characters[randomIndex];
+        }
+
+
+        document.getElementById("password").value = password;
+
+        checkStrength(password);
+    }
+
+
+    function checkStrength(password) {
+
+        let strength = 0;
+
+        if (password.length >= 8)
+            strength++;
+
+        if (/[A-Z]/.test(password))
+            strength++;
+
+        if (/[a-z]/.test(password))
+            strength++;
+
+        if (/[0-9]/.test(password))
+            strength++;
+
+        if (/[^A-Za-z0-9]/.test(password))
+            strength++;
+
+
+        const strengthText =
+            document.getElementById("strengthText");
+
+
+        if (strength <= 2) {
+            strengthText.textContent = "Weak";
+        }
+        else if (strength <= 4) {
+            strengthText.textContent = "Medium";
+        }
+        else {
+            strengthText.textContent = "Strong";
+        }
+    }
+
+
+    document.getElementById("copyBtn")
+        .addEventListener("click", function() {
+
+            const password =
+                document.getElementById("password").value;
+
+            if (password === "") {
+                alert("Generate a password first!");
+                return;
+            }
+
+            navigator.clipboard.writeText(password);
+
+            this.textContent = "Copied!";
+
+            setTimeout(() => {
+                this.textContent = "Copy";
+            }, 1500);
+        });
+
+</script>
+
+</body>
+</html>
